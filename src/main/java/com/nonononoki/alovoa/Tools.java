@@ -258,7 +258,7 @@ public class Tools {
 
     public static String getAuthParams(SecurityConfig securityConfig, String httpSessionId, String username,
                                        String firstName, int page, String password) {
-        String cookieData = securityConfig.getOAuthRememberMeServices().getRememberMeCookieData(username, password);
+        String cookieData = securityConfig.getRememberMeServices().getRememberMeCookieData(username, password);
         StringBuilder builder = new StringBuilder();
         builder.append("?remember-me=").append(cookieData).append("&jsessionid=").append(httpSessionId).append("&page=")
                 .append(page);

@@ -1,6 +1,7 @@
 package com.nonononoki.alovoa.config;
 
 import com.nonononoki.alovoa.component.*;
+import com.nonononoki.alovoa.filter.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +38,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Value("${app.text.key}")
+    @Value("${app.text.key:1234567890123456}")
     private String key;
 
     @Value("${app.login.remember.key}")
@@ -58,6 +59,9 @@ public class SecurityConfig {
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
+    @Autowired
+    private JwtFilter jwtFilter;
+
     private final AuthenticationConfiguration configuration;
 
     public static final String ROLE_USER = "ROLE_USER";
@@ -76,8 +80,7 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        AuthenticationManagerBuilder authenticationManagerBuilder = http
-                .getSharedObject(AuthenticationManagerBuilder.class);
+        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
         authenticationManagerBuilder.authenticationProvider(authProvider());
 
         http.authorizeHttpRequests(auth -> auth
@@ -88,7 +91,6 @@ public class SecurityConfig {
                         .requestMatchers("/img/**").permitAll()
                         .requestMatchers("/font/**").permitAll()
                         .requestMatchers("/json/**").permitAll()
-                        .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/login/**").permitAll()
                         .requestMatchers("/terms-conditions").permitAll()
@@ -118,20 +120,12 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable)
-                .formLogin(formLogin -> formLogin
-                        .loginPage("/login")
-                        .permitAll()
-                ).logout(logout ->
-                        logout.deleteCookies("remove")
-                                .invalidateHttpSession(true)
-                                .deleteCookies(COOKIE_SESSION, COOKIE_REMEMBER)
-                                .logoutUrl("/logout")
-                                .logoutSuccessUrl("/?logout")
-                ).oauth2Login(login -> login.loginPage("/?auth-error").defaultSuccessUrl("/login/oauth2/success"))
+                .formLogin(formLogin -> formLogin.loginPage("/login").permitAll())
+                .logout(logout -> logout.deleteCookies("remove").invalidateHttpSession(true).deleteCookies(COOKIE_SESSION, COOKIE_REMEMBER).logoutUrl("/logout").logoutSuccessUrl("/?logout"))
                 .addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .rememberMe(remember -> remember.rememberMeServices(oAuthRememberMeServices()).key(rememberKey))
-                .sessionManagement(session -> session.maximumSessions(10).expiredSessionStrategy(getSessionInformationExpiredStrategy())
-                        .sessionRegistry(sessionRegistry()))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .rememberMe(remember -> remember.rememberMeServices(customRememberMeServices()).key(rememberKey))
+                .sessionManagement(session -> session.maximumSessions(10).expiredSessionStrategy(getSessionInformationExpiredStrategy()).sessionRegistry(sessionRegistry()))
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration configuration = new CorsConfiguration();
                     configuration.setAllowCredentials(true);
@@ -194,7 +188,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    TokenBasedRememberMeServices oAuthRememberMeServices() {
+    CustomTokenBasedRememberMeServices customRememberMeServices() {
         CustomTokenBasedRememberMeServices rememberMeService = new CustomTokenBasedRememberMeServices(rememberKey,
                 customUserDetailsService);
         rememberMeService.setAlwaysRemember(true);
@@ -211,7 +205,7 @@ public class SecurityConfig {
         return new AuthProvider();
     }
 
-    public CustomTokenBasedRememberMeServices getOAuthRememberMeServices() {
-        return (CustomTokenBasedRememberMeServices) oAuthRememberMeServices();
+    public CustomTokenBasedRememberMeServices getRememberMeServices() {
+        return customRememberMeServices();
     }
 }

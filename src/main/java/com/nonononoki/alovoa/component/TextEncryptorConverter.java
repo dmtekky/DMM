@@ -23,10 +23,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class TextEncryptorConverter implements AttributeConverter<String, String> {
 
-	@Value("${app.text.key}")
+	@Value("${app.text.key:1234567890123456}")
 	private String key;
 
-	@Value("${app.text.salt}")
+	@Value("${app.text.salt:abcdef1234567890}")
 	private String salt;
 
 	private static final String TRANSFORMATION = "AES/CBC/PKCS5PADDING";

@@ -18,14 +18,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
     String SEARCH_SELECT_QUERY = "SELECT u FROM User u ";
     String SEARCH_JOIN_MISC_QUERY = "LEFT JOIN u.miscInfos misc ";
     String SEARCH_JOIN_INTEREST_QUERY = "LEFT JOIN u.interests interest ";
-    String SEARCH_BASE_QUERY = "WHERE u.disabled = FALSE AND u.admin = FALSE AND u.confirmed = TRUE AND u.intention IS NOT NULL AND "
-            + "u.locationLatitude IS NOT NULL AND u.locationLongitude IS NOT NULL "
-            + "AND u.profilePicture IS NOT NULL AND :preferedGender MEMBER OF u.preferedGenders "
-            + "AND TIMESTAMPDIFF(YEAR, u.dates.dateOfBirth, CURDATE()) + u.preferedMaxAge >= :age AND TIMESTAMPDIFF(YEAR, u.dates.dateOfBirth, CURDATE()) + u.preferedMinAge <= :age AND u.dates.dateOfBirth >= :minDate AND u.dates.dateOfBirth <= :maxDate "
-            + "AND u.id NOT IN (:likeIds) AND u.id NOT IN (:likeIds) AND u.id NOT IN (:hideIds) "
-            + "AND u.id NOT IN (:blockIds) "
-            + "AND u.id NOT IN (:blockedByIds) "
-            + "AND u.gender.id IN (:genderIds) ";
+    String SEARCH_BASE_QUERY = "WHERE u.disabled = FALSE AND u.admin = FALSE AND u.confirmed = TRUE AND u.intention IS NOT NULL AND " +
+            "u.locationLatitude IS NOT NULL AND u.locationLongitude IS NOT NULL " +
+            "AND u.profilePicture IS NOT NULL AND :preferedGender MEMBER OF u.preferedGenders " +
+            "AND (year(current_date()) - year(u.dates.dateOfBirth)) + u.preferedMaxAge >= :age AND (year(current_date()) - year(u.dates.dateOfBirth)) + u.preferedMinAge <= :age AND u.dates.dateOfBirth >= :minDate AND u.dates.dateOfBirth <= :maxDate " +
+            "AND u.id NOT IN (:likeIds) AND u.id NOT IN (:hideIds) " +
+            "AND u.id NOT IN (:blockIds) " +
+            "AND u.id NOT IN (:blockedByIds) " +
+            "AND u.gender.id IN (:genderIds) ";
     String SEARCH_INTENTION_QUERY = "AND u.intention.id IN (:intentionIds) ";
     String SEARCH_MISC_INFO_QUERY = "AND misc.value IN (:miscInfoIds) ";
     String SEARCH_INTEREST_QUERY = "AND interest.text IN (:interestTexts)  ";

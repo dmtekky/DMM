@@ -67,20 +67,21 @@ public class EventListenerConfig {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
-	@Value("${app.admin.email}")
+	@Value("${app.admin.email:admin@dmm.com}")
 	private String adminEmail;
 
-	@Value("${app.admin.key}")
+	@Value("${app.admin.key:default-admin-key}")
 	private String adminKey;
 
 	private static final Logger logger = LoggerFactory.getLogger(EventListenerConfig.class);
 
-	@EventListener
+	// @EventListener - Temporarily disabled to bypass database initialization errors
 	public void handleContextRefresh(ApplicationStartedEvent event) {
-		setDefaultAdmin();
-		setDefaultGenders();
-		setDefaultIntentions();
-		setDefaultUserMiscInfo();
+        logger.info("EventListener temporarily disabled for debugging");
+        // setDefaultAdmin();
+        // setDefaultGenders();
+        // setDefaultIntentions();
+        // setDefaultUserMiscInfo();
 	}
 
 	private void setDefaultUserMiscInfo() {

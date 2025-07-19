@@ -23,6 +23,7 @@ import java.util.*;
 @Getter
 @Setter
 @Entity
+@Table(name = "app_user")
 public class User implements UserDetails {
 
     @Transient

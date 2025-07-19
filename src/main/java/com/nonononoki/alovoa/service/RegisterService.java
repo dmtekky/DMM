@@ -149,17 +149,11 @@ public class RegisterService {
     public void registerOauth(RegisterDto dto) throws MessagingException, IOException, AlovoaException,
             NumberFormatException {
 
-        String email = Tools.cleanEmail(authService.getOauth2Email());
-        if (email == null) {
-            throw new AlovoaException("email_is_null");
-        }
-
-        User user = userRepo.findByEmail(email);
+        User user = userRepo.findByEmail(dto.getEmail());
         if (user != null) {
             throw new AlovoaException(publicService.text("backend.error.register.email-exists"));
         }
 
-        dto.setEmail(email);
         BaseRegisterDto baseRegisterDto = registerBase(dto, true);
         user = baseRegisterDto.getUser();
         user.setConfirmed(true);

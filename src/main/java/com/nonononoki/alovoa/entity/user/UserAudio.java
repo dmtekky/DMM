@@ -11,6 +11,7 @@ import lombok.Setter;
 
 import java.util.UUID;
 
+@Table(name = "user_audio")
 @Getter
 @Setter
 @Entity

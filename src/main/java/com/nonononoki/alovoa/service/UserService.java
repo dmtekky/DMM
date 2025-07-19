@@ -112,7 +112,7 @@ public class UserService {
     private ConversationRepository conversationRepo;
     @Autowired
     private CaptchaService captchaService;
-    @Autowired
+    @Autowired(required = false)
     private MailService mailService;
     @Autowired
     private TextEncryptorConverter textEncryptor;
@@ -151,7 +151,6 @@ public class UserService {
     @Getter
     @Value("${app.domain}")
     public String domain;
-
 
     public static synchronized void removeUserDataCascading(User user, UserDeleteParams userDeleteParam) {
 
@@ -284,7 +283,9 @@ public class UserService {
         user.setDeleteToken(token);
         user = userRepo.saveAndFlush(user);
 
-        mailService.sendAccountDeleteRequest(user);
+        if (mailService != null) {
+            mailService.sendAccountDeleteRequest(user);
+        }
 
         return user.getDeleteToken();
     }
@@ -331,10 +332,11 @@ public class UserService {
         userRepo.flush();
 
         SecurityContextHolder.clearContext();
-        mailService.sendAccountDeleteConfirm(user);
+        if (mailService != null) {
+            mailService.sendAccountDeleteConfirm(user);
+        }
     }
 
-    @SuppressWarnings("deprecation")
     public void updateProfilePicture(byte[] bytes, String mimeType) throws AlovoaException, IOException {
         User user = authService.getCurrentUser(true);
         user.setVerificationPicture(null);
@@ -721,11 +723,15 @@ public class UserService {
                 userRepo.saveAndFlush(user);
 
                 if (user.getUserSettings().isEmailLike()) {
-                    mailService.sendMatchNotificationMail(user);
+                    if (mailService != null) {
+                        mailService.sendMatchNotificationMail(user);
+                    }
                 }
 
             } else if (!currUser.isDisabled() && user.getUserSettings().isEmailLike()) {
-                mailService.sendLikeNotificationMail(user);
+                if (mailService != null) {
+                    mailService.sendLikeNotificationMail(user);
+                }
             }
         }
     }
@@ -862,7 +868,6 @@ public class UserService {
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
 
-    @SuppressWarnings("deprecation")
     public String getAudio(UUID uuid)
             throws NumberFormatException, AlovoaException {
         User user = findUserByUuid(uuid);
@@ -878,7 +883,6 @@ public class UserService {
         userRepo.saveAndFlush(user);
     }
 
-    @SuppressWarnings("deprecation")
     public void updateAudio(byte[] bytes, String mimeType)
             throws AlovoaException, UnsupportedAudioFileException, IOException {
         User user = authService.getCurrentUser(true);

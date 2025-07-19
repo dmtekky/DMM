@@ -10,7 +10,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.util.StringUtils;
 
@@ -27,7 +26,7 @@ public class CustomTokenBasedRememberMeServices extends TokenBasedRememberMeServ
 		if (isInstanceOfUserDetails(authentication)) {
 			return ((UserDetails) authentication.getPrincipal()).getUsername();
 		}
-		return (String) ((DefaultOAuth2User) authentication.getPrincipal()).getAttributes().get("email");
+		return null;
 	}
 
 	// Mostly copied from TokenBasedRememberMeServices

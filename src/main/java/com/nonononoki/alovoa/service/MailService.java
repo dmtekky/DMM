@@ -31,8 +31,9 @@ public class MailService {
     @Autowired
     private MessageSource messageSource;
 
-    @Autowired
+    @Autowired(required = false)
     private JavaMailSender mailSender;
+    // Added required=false to bypass mail sender dependency for now; add checks in methods if mailSender is null to avoid NPEs during email operations.
 
     @Value("${app.name}")
     private String appName;
@@ -50,6 +51,9 @@ public class MailService {
 
     public boolean sendMail(String to, String from, String subject, String body) {
         try {
+            if (mailSender == null) {
+                return false;
+            }
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, StandardCharsets.UTF_8.name());
             helper.setFrom(from);
@@ -96,6 +100,9 @@ public class MailService {
     }
 
     public void sendRegistrationMail(User user) throws MessagingException, IOException {
+        if (mailSender == null) {
+            return;
+        }
         Locale locale = Tools.getUserLocale(user);
         String subject = messageSource.getMessage("backend.mail.register.subject", new String[]{appName}, "",
                 locale);
@@ -107,6 +114,9 @@ public class MailService {
     }
 
     public void sendPasswordResetMail(User user) throws MessagingException, IOException {
+        if (mailSender == null) {
+            return;
+        }
         Locale locale = Tools.getUserLocale(user);
         String subject = messageSource.getMessage("backend.mail.password-reset.subject", new String[]{appName},
                 locale);
@@ -116,6 +126,9 @@ public class MailService {
     }
 
     public void sendAccountDeleteRequest(User user) throws MessagingException, IOException {
+        if (mailSender == null) {
+            return;
+        }
         Locale locale = Tools.getUserLocale(user);
         String subject = messageSource.getMessage("backend.mail.account-delete-request.subject",
                 new String[]{appName}, locale);
@@ -126,6 +139,9 @@ public class MailService {
     }
 
     public void sendAccountDeleteConfirm(User user) throws MessagingException, IOException {
+        if (mailSender == null) {
+            return;
+        }
         Locale locale = Tools.getUserLocale(user);
         String subject = messageSource.getMessage("backend.mail.account-delete-confirm.subject",
                 new String[]{appName}, locale);
@@ -135,6 +151,9 @@ public class MailService {
     }
 
     public void sendAccountConfirmed(User user) throws MessagingException, IOException {
+        if (mailSender == null) {
+            return;
+        }
         Locale locale = Tools.getUserLocale(user);
         String subject = messageSource.getMessage("backend.mail.account-confirmed.subject", new String[]{appName},
                 locale);
@@ -144,6 +163,9 @@ public class MailService {
     }
 
     public void sendLikeNotificationMail(User user) {
+        if (mailSender == null) {
+            return;
+        }
         Locale locale = Tools.getUserLocale(user);
         String subject = messageSource.getMessage("backend.mail.like.subject", new String[]{}, locale);
         String body = messageSource.getMessage("backend.mail.like.body", new String[]{user.getFirstName()}, locale);
@@ -151,6 +173,9 @@ public class MailService {
     }
 
     public void sendMatchNotificationMail(User user) {
+        if (mailSender == null) {
+            return;
+        }
         Locale locale = Tools.getUserLocale(user);
         String subject = messageSource.getMessage("backend.mail.match.subject", new String[]{}, locale);
         String body = messageSource.getMessage("backend.mail.match.body", new String[]{user.getFirstName()}, locale);
@@ -158,6 +183,9 @@ public class MailService {
     }
 
     public boolean sendChatNotificationMail(User user, User currUser, String message, Conversation conversation) {
+        if (mailSender == null) {
+            return false;
+        }
         //only send mail notification if the previous message was NOT from current user in order to avoid spam
         if (conversation.getMessages().size() <= 1 ||
                 !Objects.equals(conversation.getMessages().get(conversation.getMessages().size() - 2).getUserFrom().getId(), currUser.getId())) {

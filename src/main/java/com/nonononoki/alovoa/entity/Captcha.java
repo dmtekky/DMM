@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -17,13 +18,14 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
+@Table(name = "captcha", schema = "public")
 public class Captcha {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
 	
-	@Column(columnDefinition="mediumtext")
+	@Column(columnDefinition="text")
 	private String image;
 	
 	@JsonIgnore
@@ -33,6 +35,6 @@ public class Captcha {
 	private Date date;
 	
 	@JsonIgnore
-	@Column(unique=true, nullable=false)
+	@Column(name="hashcode", unique=true, nullable=false)
 	private String hashCode;
 }

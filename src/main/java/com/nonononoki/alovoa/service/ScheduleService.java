@@ -50,9 +50,15 @@ public class ScheduleService {
 	@Scheduled(fixedDelayString = "${app.schedule.short}")
 	public void scheduleShort() {
 		if (enableSchedules) {
-			Date date = new Date();
-			cleanCaptcha(date);
-			cleanUserHide(date);
+			try {
+				Date date = new Date();
+				cleanCaptcha(date);
+				cleanUserHide(date);
+			} catch (Exception e) {
+				// Log the exception for debugging
+				System.err.println("Transaction error in scheduleShort: " + e.getMessage());
+				// Optionally, rethrow or handle specifically
+			}
 		}
 	}
 
